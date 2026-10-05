@@ -1,0 +1,69 @@
+services:
+  service-discovery:
+    build: ./service-discovery
+    ports:
+      - "8761:8761"
+    container_name: service-discovery
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--user", "eureka:eureka2026", "http://localhost:8761/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    container_name: config-server
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--user", "admin:admin", "http://localhost:8888/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+  auth-server:
+    build: ./auth_server
+    ports:
+      - "8080:8080"
+    depends_on:
+      config-server:
+        condition: service_healthy
+    env_file:
+      - ./auth_server/.env
+    container_name: auth-server
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--user", "admin:admin", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+  
+  activemq:
+    image: apache/activemq-classic:latest
+    container_name: activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8161/actuator/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  ms-banco:
+    build: ./msBanco
+    ports:
+      - "8090:8090"
+    depends_on:
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+    container_name: ms-banco
