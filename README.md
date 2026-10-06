@@ -23,4 +23,5 @@ El directorio raíz contiene un archivo `docker-compose.yml`.
 # Como utilizar
 El proyecto utiliza un archivo `docker-compose.yml` para desplegar las aplicaciones en contenedores Docker (también despliega **ActiveMQ** usando su imagen).
 Antes de ejecutar `docker-compose.yml` se debe crear un archivo `.env` en la carpeta `./auth_server` que contenga las variables de entorno **GITHUB_CLIENT_ID** y **GITHUB_CLIENT_SECRET**. Estas variables serán usadas por el **Auth Server** para conectarse a la aplicación OAuth en GitHub y solicitar acceso al usuario. Las variables anteriores deben obtenerse desde la aplicación OAuth creada en GitHub.
+También se deben modificar los parámetros de conexión de **msBanco** a la base de datos en el **Config Server** para ajustarla a la base de datos de quien ejecute este proyecto. 
 Con el archivo `.env` creado para el **Auth Server**, se debe ejecutar el archivo `docker-compose.yml` usando el comando: `docker-compose up -d --build`
