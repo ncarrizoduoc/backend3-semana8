@@ -1,9 +1,10 @@
 # Proyecto Spring Batch - Banco XYZ
-El objetivo de este proyecto es definir dos microservicios, comunicados de manera asíncrona a través de eventos.
-El microservicio **msbanco** procesa transacciones bancarias y genera estados de cuenta.
-El microservicio **ms_correo** recibe notificaciones de transacciones completadas e imprime la información de cada transacción en consola.
-Se utiliza **Config Server** para configurar los microservicios de manera centralizada a través de archivos de configuración.
-Se utiliza **Eureka Server** para registrar el microservicio de banco, para facilitar su comunicación con otras aplicaciones más adelante. 
+El objetivo de este proyecto es definir dos microservicios, comunicados de manera asíncrona a través de eventos. Esta semana se agregó autenticación y autorización con OAuth2. El proyecto está conformado por las siguientes aplicaciones:
+- El microservicio **msbanco** procesa transacciones bancarias y genera estados de cuenta.
+- El microservicio **ms_correo** recibe notificaciones de transacciones completadas e imprime la información de cada transacción en consola.
+- Se utiliza **Config Server** para configurar los microservicios de manera centralizada a través de archivos de configuración.
+- Se utiliza **Eureka Server** para registrar el microservicio de banco, para facilitar su comunicación con otras aplicaciones más adelante.
+- Se crea un **Auth Server** para gestionar la conexión por OAuth2, a través de GitHub, generando JWTs que deberán ser usados en solicitudes HTTP dirigidas al microservicio banco. 
 
 ## Requisitos previos
 - **Java 21**: Asegúrate de tener instalado JDK 21.
@@ -15,7 +16,11 @@ Se utiliza **Eureka Server** para registrar el microservicio de banco, para faci
 - **Maven**
 
 ## Estructura del proyecto
-El proyecto incluye cuatro sub-proyectos, cada uno corresponde a una aplicación diferente.
+El proyecto incluye cinco sub-proyectos, cada uno corresponde a una aplicación diferente.
+Cada aplicación tiene su propio `Dockerfile`, los cuales proveen instrucciones para la construcción de las imágenes de su respectiva aplicación.
+El directorio raíz contiene un archivo `docker-compose.yml`.
 
 # Como utilizar
-Para poder utilizar este proyecto, debes ejecutar las aplicaciones contenidas en `config-server` y `service-discovery` en primer lugar. Con las aplicaciones anteriores en ejecución, debes ejecutar las aplicaciones contenidas en las carpetas `msBanco` y `ms_correo`. Las aplicaciones deben ejecutarse en ese orden, puestos que los microservicios requieren la configuración definida en `config-server` para funcionar correctamente.
+El proyecto utiliza un archivo `docker-compose.yml` para desplegar las aplicaciones en contenedores Docker (también despliega **ActiveMQ** usando su imagen).
+Antes de ejecutar `docker-compose.yml` se debe crear un archivo `.env` en la carpeta `./auth_server` que contenga las variables de entorno **GITHUB_CLIENT_ID** y **GITHUB_CLIENT_SECRET**. Estas variables serán usadas por el **Auth Server** para conectarse a la aplicación OAuth en GitHub y solicitar acceso al usuario. Las variables anteriores deben obtenerse desde la aplicación OAuth creada en GitHub.
+Con el archivo `.env` creado para el **Auth Server**, se debe ejecutar el archivo `docker-compose.yml` usando el comando: `docker-compose up -d --build`
